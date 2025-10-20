@@ -1,6 +1,8 @@
 // BASIC REPORTS AND CATEGORY BREAKDOWN
 
 import 'package:flutter/material.dart';
+import 'package:fl_chart/fl_chart.dart';
+import '../data/sample_data.dart';
 import '../widgets/balance.dart';
 
 class HomeScreen extends StatelessWidget {
@@ -9,7 +11,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      appBar: AppBar(title: const Text('Dashboard')),
+      appBar: AppBar(title: const Text('Personal Finance Manager')),
 
       // Drawer menu (Options tab)
       drawer: Drawer(
@@ -54,17 +56,89 @@ class HomeScreen extends StatelessWidget {
         padding: const EdgeInsets.all(16.0),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
-          children: const [
+          children: [
             // Display total balance card
             BalanceWidget(),
             SizedBox(height: 20),
-            // Welcome message
-            Text(
-              'Welcome!',
-              style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold),
+            Row(
+              children: [
+                SizedBox(
+                  height: 200,
+                  width: 200,
+                  child: PieChart(
+                    PieChartData(
+                      sections: [
+                        PieChartSectionData(
+                          value: 400,
+                          title: '',
+                          color: Colors.blue,
+                        ),
+                        PieChartSectionData(
+                          value: 600,
+                          title: '',
+                          color: Colors.green,
+                        ),
+                        PieChartSectionData(
+                          value: 500,
+                          title: '',
+                          color: Colors.red,
+                        ),
+                      ],
+                      centerSpaceRadius: 0,
+                      sectionsSpace: 0,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 20),
+                Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: const [
+                    _LegendItem(color: Colors.blue, text: 'Savings'),
+                    _LegendItem(color: Colors.green, text: 'Income'),
+                    _LegendItem(color: Colors.red, text: 'Expenses'),
+                  ],
+                ),
+              ],
+            ),
+
+            const SizedBox(height: 30),
+
+            // Savings Goal Progress Bar (matches reference UI bottom bar)
+            const Align(
+              alignment: Alignment.centerLeft,
+              child: Text('Savings Goal'),
+            ),
+            const SizedBox(height: 5),
+            LinearProgressIndicator(
+              value: 0.6, // 60% complete (adjust later dynamically)
+              backgroundColor: Colors.grey[300],
+              valueColor: const AlwaysStoppedAnimation<Color>(Colors.blue),
+              minHeight: 8,
             ),
           ],
         ),
+      ),
+    );
+  }
+}
+
+// Legend Widget (for Pie Chart labels)
+class _LegendItem extends StatelessWidget {
+  final Color color;
+  final String text;
+
+  const _LegendItem({required this.color, required this.text});
+
+  @override
+  Widget build(BuildContext context) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 4.0),
+      child: Row(
+        children: [
+          Container(width: 14, height: 14, color: color),
+          const SizedBox(width: 8),
+          Text(text),
+        ],
       ),
     );
   }
