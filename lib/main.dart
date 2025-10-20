@@ -29,7 +29,7 @@ class FinanceApp extends StatelessWidget {
         '/log_transactions': (context) => LogTransactionsScreen(),
         '/log_income': (context) => LogIncomeScreen(),
         '/log_savings': (context) => LogSavingsScreen(),
-        '/all_transactions': (context) => AllTransactionsScreen(),
+        '/all_transactions': (context) => AllTransacationsScreen(),
       },
     );
   }

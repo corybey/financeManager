@@ -58,7 +58,6 @@ class HomeScreen extends StatelessWidget {
             // Display total balance card
             BalanceWidget(),
             SizedBox(height: 20),
-
             // Welcome message
             Text(
               'Welcome!',
