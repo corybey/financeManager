@@ -42,6 +42,22 @@ class HomeScreen extends StatelessWidget {
               title: const Text('Log Savings'),
               onTap: () => Navigator.pushNamed(context, '/log_savings'),
             ),
+
+            //Dyanamic savings update
+
+            // ListTile(
+            //   leading: const Icon(Icons.savings),
+            //   title: const Text('Log Savings'),
+            //   onTap: () async {
+            //     final newSavings = await Navigator.pushNamed(context, '/log_savings');
+            //     if (newSavings != null && newSavings is double) {
+            //       setState(() {
+            //         currentSavings += newSavings; //  Update progress bar dynamically
+            //       });
+            //     }
+            //     Navigator.pop(context); //  Closes the drawer after returning
+            //   },
+            // ),
             ListTile(
               leading: const Icon(Icons.list),
               title: const Text('All Transactions'),
@@ -143,3 +159,91 @@ class _LegendItem extends StatelessWidget {
     );
   }
 }
+
+
+
+//Code for adding bell for goal reached notification
+
+// appBar: AppBar(
+//   title: const Text('Dashboard'),
+//   centerTitle: true,
+//   actions: [
+//     IconButton(
+//       icon: Icon(
+//         // Bell glows when goal is reached
+//         (currentSavings >= savingsGoal)
+//             ? Icons.notifications_active
+//             : Icons.notifications_none,
+//         color: (currentSavings >= savingsGoal)
+//             ? Colors.amber
+//             : Colors.grey[600],
+//       ),
+//       onPressed: () {
+//         if (currentSavings >= savingsGoal) {
+//           // Show success dialog
+//           showDialog(
+//             context: context,
+//             builder: (context) => AlertDialog(
+//               title: const Text('Goal Reached!'),
+//               content: Text(
+//                 'Congratulations! You’ve reached your savings goal of \$${savingsGoal.toStringAsFixed(2)}!',
+//               ),
+//               actions: [
+//                 TextButton(
+//                   onPressed: () => Navigator.pop(context),
+//                   child: const Text('Awesome!'),
+//                 ),
+//               ],
+//             ),
+//           );
+//         } else {
+//           // Inform how close they are
+//           ScaffoldMessenger.of(context).showSnackBar(
+//             SnackBar(
+//               content: Text(
+//                 'You’re ${(currentSavings / savingsGoal * 100).toStringAsFixed(1)}% of the way to your goal!',
+//               ),
+//             ),
+//           );
+//         }
+//       },
+//     ),
+//   ],
+// ),
+
+
+//Autocheck for goal reached
+// if (newSavings != null && newSavings is double) {
+//   setState(() {
+//     currentSavings += newSavings;
+//   });
+
+//   // Auto-notify if goal is reached
+//   if (currentSavings >= savingsGoal) {
+//     showDialog(
+//       context: context,
+//       builder: (context) => AlertDialog(
+//         title: const Text('Goal Reached! '),
+//         content: Text(
+//           'You’ve officially reached your savings goal of \$${savingsGoal.toStringAsFixed(2)}!',
+//         ),
+//         actions: [
+//           TextButton(
+//             onPressed: () => Navigator.pop(context),
+//             child: const Text('Celebrate!'),
+//           ),
+//         ],
+//       ),
+//     );
+//   } else {
+//     ScaffoldMessenger.of(context).showSnackBar(
+//       SnackBar(
+//         content: Text(
+//           'Added \$${newSavings.toStringAsFixed(2)} to savings.',
+//         ),
+//       ),
+//     );
+//   }
+
+//   Navigator.pop(context); // Close drawer
+// }
