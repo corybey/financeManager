@@ -1,6 +1,3 @@
-// Main Controller for Finance App
-// Initializes the app and sets up routes
-
 import 'package:flutter/material.dart';
 import 'screens/home_screen.dart';
 import 'screens/log_transactions.dart';
@@ -9,12 +6,12 @@ import 'screens/log_savings.dart';
 import 'screens/all_transactions.dart';
 
 void main() {
-  runApp(FinanceApp());
+  runApp(const FinanceApp());
 }
 
 class FinanceApp extends StatelessWidget {
   const FinanceApp({super.key});
-  //create home screen and routes to other screens
+  
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -26,10 +23,10 @@ class FinanceApp extends StatelessWidget {
       ),
       home: const HomeScreen(),
       routes: {
-        '/log_transactions': (context) => LogTransactionsScreen(),
-        '/log_income': (context) => LogIncomeScreen(),
-        '/log_savings': (context) => LogSavingsScreen(),
-        '/all_transactions': (context) => AllTransactionsScreen(),
+        '/log_transactions': (context) => const LogTransactionsScreen(),
+        '/log_income': (context) => const LogIncomeScreen(),
+        '/log_savings': (context) => const LogSavingsScreen(),
+        '/all_transactions': (context) => const AllTransactionsScreen(),
       },
     );
   }

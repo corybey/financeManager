@@ -1,15 +1,23 @@
 // SAVINGS GOALS
 
 import 'package:flutter/material.dart';
+import '../database/database_helper.dart';
+import '../models/savings.dart';
 
-class LogSavingsScreen extends StatelessWidget {
+class LogSavingsScreen extends StatefulWidget {
   const LogSavingsScreen({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    final TextEditingController amountController = TextEditingController();
-    final TextEditingController goalController = TextEditingController();
+  State<LogSavingsScreen> createState() => _LogSavingsScreenState();
+}
 
+class _LogSavingsScreenState extends State<LogSavingsScreen> {
+  final TextEditingController amountController = TextEditingController();
+  final TextEditingController goalController = TextEditingController();
+  final DatabaseHelper _dbHelper = DatabaseHelper();
+
+  @override
+  Widget build(BuildContext context) {
     return Scaffold(
       appBar: AppBar(title: const Text('Log Savings')),
       body: Padding(
@@ -30,7 +38,7 @@ class LogSavingsScreen extends StatelessWidget {
                 labelText: 'Amount Saved',
                 prefixIcon: Icon(Icons.attach_money),
               ),
-              keyboardType: TextInputType.number,
+              keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
 
             const SizedBox(height: 10),
@@ -53,27 +61,63 @@ class LogSavingsScreen extends StatelessWidget {
               style: ElevatedButton.styleFrom(
                 minimumSize: const Size(double.infinity, 50),
               ),
-              onPressed: () {
-                final amount = double.tryParse(amountController.text);
-
-                // Validate numeric input
-                if (amount != null && amount > 0) {
-                  // Send back the amount to HomeScreen
-                  Navigator.pop(context, amount);
-                } else {
-                  // Show an error if user didn’t enter a valid number
-                  ScaffoldMessenger.of(context).showSnackBar(
-                    const SnackBar(
-                      content: Text('Please enter a valid savings amount.'),
-                      duration: Duration(seconds: 2),
-                    ),
-                  );
-                }
-              },
+              onPressed: _saveSavings,
             ),
           ],
         ),
       ),
     );
+  }
+
+  void _saveSavings() async {
+    final amount = double.tryParse(amountController.text);
+    final goalName = goalController.text.trim();
+
+    // Validate numeric input
+    if (amount != null && amount > 0) {
+      try {
+        final savings = Savings(
+          amount: amount,
+          goalName: goalName.isEmpty ? 'Savings Goal' : goalName,
+          date: DateTime.now(),
+        );
+
+        await _dbHelper.insertSavings(savings.toMap());
+        
+        // Show success message
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Added \$${amount.toStringAsFixed(2)} to savings!'),
+            backgroundColor: Colors.green,
+          ),
+        );
+        
+        // Navigate back with the amount
+        Navigator.pop(context, amount);
+        
+      } catch (e) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to save savings: $e'),
+            backgroundColor: Colors.red,
+          ),
+        );
+      }
+    } else {
+      // Show an error if user didn't enter a valid number
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(
+          content: Text('Please enter a valid savings amount.'),
+          duration: Duration(seconds: 2),
+        ),
+      );
+    }
+  }
+
+  @override
+  void dispose() {
+    amountController.dispose();
+    goalController.dispose();
+    super.dispose();
   }
 }
