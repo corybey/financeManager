@@ -16,10 +16,15 @@ class _LogTransactionsScreenState extends State<LogTransactionsScreen> {
   final _descriptionController = TextEditingController();
   String _selectedCategory = 'Food';
   String _selectedType = 'expense';
-  
+
   final List<String> _categories = [
-    'Food', 'Transport', 'Entertainment', 'Shopping', 
-    'Bills', 'Healthcare', 'Other'
+    'Food',
+    'Transport',
+    'Entertainment',
+    'Shopping',
+    'Bills',
+    'Healthcare',
+    'Other',
   ];
 
   final DatabaseHelper _dbHelper = DatabaseHelper();
@@ -49,24 +54,10 @@ class _LogTransactionsScreenState extends State<LogTransactionsScreen> {
                     ),
                   ),
                 ),
-                Expanded(
-                  child: ListTile(
-                    title: const Text('Income'),
-                    leading: Radio<String>(
-                      value: 'income',
-                      groupValue: _selectedType,
-                      onChanged: (value) {
-                        setState(() {
-                          _selectedType = value!;
-                        });
-                      },
-                    ),
-                  ),
-                ),
               ],
             ),
             const SizedBox(height: 10),
-            
+
             // Amount Input
             TextField(
               controller: _amountController,
@@ -77,14 +68,14 @@ class _LogTransactionsScreenState extends State<LogTransactionsScreen> {
               keyboardType: TextInputType.numberWithOptions(decimal: true),
             ),
             const SizedBox(height: 10),
-            
+
             // Description Input
             TextField(
               controller: _descriptionController,
               decoration: const InputDecoration(labelText: 'Description'),
             ),
             const SizedBox(height: 10),
-            
+
             // Category Dropdown
             DropdownButtonFormField<String>(
               value: _selectedCategory,
@@ -105,7 +96,7 @@ class _LogTransactionsScreenState extends State<LogTransactionsScreen> {
               },
             ),
             const SizedBox(height: 20),
-            
+
             // Save Button
             ElevatedButton(
               onPressed: _saveTransaction,
@@ -141,24 +132,25 @@ class _LogTransactionsScreenState extends State<LogTransactionsScreen> {
       );
 
       await _dbHelper.insertTransaction(transaction.toMap());
-      
+
       // Clear form
       _amountController.clear();
       _descriptionController.clear();
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
-          content: Text('${_selectedType == 'expense' ? 'Expense' : 'Income'} saved successfully!'),
+          content: Text(
+            '${_selectedType == 'expense' ? 'Expense' : 'Income'} saved successfully!',
+          ),
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Navigate back after a short delay
       Future.delayed(const Duration(milliseconds: 1500), () {
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       });
-      
     } catch (e) {
       _showError('Failed to save transaction: $e');
     }
@@ -166,10 +158,7 @@ class _LogTransactionsScreenState extends State<LogTransactionsScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 

@@ -15,7 +15,7 @@ class Income {
     return {
       'id': id,
       'amount': amount,
-      'description': description, // ✅ This matches the database column name
+      'description': description, // This matches the database column name
       'date': date.toIso8601String(),
     };
   }
@@ -24,7 +24,7 @@ class Income {
     return Income(
       id: map['id'],
       amount: map['amount'],
-      description: map['description'] ?? '', // ✅ Handle null description
+      description: map['description'] ?? '', // Handle null description
       date: DateTime.parse(map['date']),
     );
   }

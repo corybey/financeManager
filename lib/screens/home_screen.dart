@@ -46,7 +46,6 @@ class _HomeScreenState extends State<HomeScreen> {
       print('   - Expenses: $_totalExpenses');
       print('   - Balance: ${_totalIncome - _totalExpenses}');
       print('   - Savings: $_totalSavings');
-      
     } catch (e) {
       print('❌ Error in _loadFinancialData: $e');
       // Force all values to zero on error
@@ -77,7 +76,9 @@ class _HomeScreenState extends State<HomeScreen> {
         actions: [
           IconButton(
             icon: Icon(
-              _isGoalReached ? Icons.notifications_active : Icons.notifications_none,
+              _isGoalReached
+                  ? Icons.notifications_active
+                  : Icons.notifications_none,
               color: _isGoalReached ? Colors.amber : Colors.grey[600],
             ),
             onPressed: () {
@@ -136,10 +137,13 @@ class _HomeScreenState extends State<HomeScreen> {
               title: const Text('Log Savings'),
               onTap: () async {
                 Navigator.pop(context);
-                final result = await Navigator.pushNamed(context, '/log_savings');
+                final result = await Navigator.pushNamed(
+                  context,
+                  '/log_savings',
+                );
                 if (result != null && result is double) {
                   _loadFinancialData(); // Refresh data with new savings
-                  
+
                   // Auto-notify if goal is reached
                   if (_isGoalReached) {
                     WidgetsBinding.instance.addPostFrameCallback((_) {
@@ -173,7 +177,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   // Display total balance card
                   const BalanceWidget(),
                   const SizedBox(height: 20),
-                  
+
                   // Pie Chart
                   Row(
                     children: [
@@ -192,9 +196,21 @@ class _HomeScreenState extends State<HomeScreen> {
                       Column(
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
-                          _LegendItem(color: Colors.blue, text: 'Savings: \$${_totalSavings.toStringAsFixed(2)}'),
-                          _LegendItem(color: Colors.green, text: 'Income: \$${_totalIncome.toStringAsFixed(2)}'),
-                          _LegendItem(color: Colors.red, text: 'Expenses: \$${_totalExpenses.toStringAsFixed(2)}'),
+                          _LegendItem(
+                            color: Colors.blue,
+                            text:
+                                'Savings: \$${_totalSavings.toStringAsFixed(2)}',
+                          ),
+                          _LegendItem(
+                            color: Colors.green,
+                            text:
+                                'Income: \$${_totalIncome.toStringAsFixed(2)}',
+                          ),
+                          _LegendItem(
+                            color: Colors.red,
+                            text:
+                                'Expenses: \$${_totalExpenses.toStringAsFixed(2)}',
+                          ),
                         ],
                       ),
                     ],
@@ -223,10 +239,7 @@ class _HomeScreenState extends State<HomeScreen> {
                   const SizedBox(height: 5),
                   Text(
                     'Saved: \$${_totalSavings.toStringAsFixed(2)} / \$${_savingsGoal.toStringAsFixed(2)} (${(_progressValue * 100).toStringAsFixed(1)}%)',
-                    style: TextStyle(
-                      fontSize: 12,
-                      color: Colors.grey[600],
-                    ),
+                    style: TextStyle(fontSize: 12, color: Colors.grey[600]),
                   ),
                 ],
               ),

@@ -6,14 +6,10 @@ class DatabaseHelper {
 
   Future<Database> get database async {
     if (_database != null) return _database!;
-    
+
     try {
       final String path = join(await getDatabasesPath(), 'finance.db');
-      _database = await openDatabase(
-        path,
-        version: 1,
-        onCreate: _onCreate,
-      );
+      _database = await openDatabase(path, version: 1, onCreate: _onCreate);
       return _database!;
     } catch (e) {
       // If database fails, create in-memory database
@@ -35,7 +31,7 @@ class DatabaseHelper {
           type TEXT
         )
       ''');
-      
+
       await db.execute('''
         CREATE TABLE IF NOT EXISTS income(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -44,7 +40,7 @@ class DatabaseHelper {
           date TEXT
         )
       ''');
-      
+
       await db.execute('''
         CREATE TABLE IF NOT EXISTS savings(
           id INTEGER PRIMARY KEY AUTOINCREMENT,
@@ -58,7 +54,8 @@ class DatabaseHelper {
     }
   }
 
-  // Transaction methods
+  // TRANSACTION METHODS
+
   Future<int> insertTransaction(Map<String, dynamic> row) async {
     try {
       final db = await database;
@@ -81,7 +78,7 @@ class DatabaseHelper {
     try {
       final db = await database;
       final result = await db.rawQuery(
-        'SELECT SUM(amount) as total FROM transactions WHERE amount < 0'
+        'SELECT SUM(amount) as total FROM transactions WHERE amount < 0',
       );
       return (result.first['total'] as double? ?? 0.0).abs();
     } catch (e) {
@@ -93,7 +90,7 @@ class DatabaseHelper {
     try {
       final db = await database;
       final result = await db.rawQuery(
-        'SELECT SUM(amount) as total FROM transactions WHERE amount > 0'
+        'SELECT SUM(amount) as total FROM transactions WHERE amount > 0',
       );
       return result.first['total'] as double? ?? 0.0;
     } catch (e) {
@@ -101,7 +98,28 @@ class DatabaseHelper {
     }
   }
 
-  // Income methods
+  // Delete a single transaction by ID
+  Future<int> deleteTransaction(int id) async {
+    try {
+      final db = await database;
+      return await db.delete('transactions', where: 'id = ?', whereArgs: [id]);
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  // Clear all transactions
+  Future<int> clearAllTransactions() async {
+    try {
+      final db = await database;
+      return await db.delete('transactions');
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  // INCOME METHODS
+
   Future<int> insertIncome(Map<String, dynamic> row) async {
     try {
       final db = await database;
@@ -123,14 +141,37 @@ class DatabaseHelper {
   Future<double> getTotalIncome() async {
     try {
       final db = await database;
-      final result = await db.rawQuery('SELECT SUM(amount) as total FROM income');
+      final result = await db.rawQuery(
+        'SELECT SUM(amount) as total FROM income',
+      );
       return result.first['total'] as double? ?? 0.0;
     } catch (e) {
       return 0.0;
     }
   }
 
-  // Savings methods
+  // Delete a single income entry by ID
+  Future<int> deleteIncome(int id) async {
+    try {
+      final db = await database;
+      return await db.delete('income', where: 'id = ?', whereArgs: [id]);
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  // Clear all income records
+  Future<int> clearAllIncome() async {
+    try {
+      final db = await database;
+      return await db.delete('income');
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  // SAVINGS METHODS
+
   Future<int> insertSavings(Map<String, dynamic> row) async {
     try {
       final db = await database;
@@ -152,10 +193,32 @@ class DatabaseHelper {
   Future<double> getTotalSavings() async {
     try {
       final db = await database;
-      final result = await db.rawQuery('SELECT SUM(amount) as total FROM savings');
+      final result = await db.rawQuery(
+        'SELECT SUM(amount) as total FROM savings',
+      );
       return result.first['total'] as double? ?? 0.0;
     } catch (e) {
       return 0.0;
+    }
+  }
+
+  /// 🗑 Delete a single savings entry by ID
+  Future<int> deleteSavings(int id) async {
+    try {
+      final db = await database;
+      return await db.delete('savings', where: 'id = ?', whereArgs: [id]);
+    } catch (e) {
+      return 0;
+    }
+  }
+
+  /// ⚠️ Clear all savings
+  Future<int> clearAllSavings() async {
+    try {
+      final db = await database;
+      return await db.delete('savings');
+    } catch (e) {
+      return 0;
     }
   }
 }

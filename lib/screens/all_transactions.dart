@@ -1,10 +1,6 @@
-// ALL TRANSACTIONS MADE
-// Data from database
-
 import 'package:flutter/material.dart';
-import '../database/database_helper.dart';
-import '../models/transaction.dart';
 import '../widgets/transaction_title.dart';
+import '../database/database_helper.dart';
 
 class AllTransactionsScreen extends StatefulWidget {
   const AllTransactionsScreen({super.key});
@@ -14,9 +10,7 @@ class AllTransactionsScreen extends StatefulWidget {
 }
 
 class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
-  final DatabaseHelper _dbHelper = DatabaseHelper();
-  List<Transaction> _transactions = [];
-  bool _isLoading = true;
+  List<Map<String, dynamic>> _transactions = [];
 
   @override
   void initState() {
@@ -24,19 +18,43 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
     _loadTransactions();
   }
 
+  // Load all transactions from SQLite
   Future<void> _loadTransactions() async {
-    try {
-      // FIXED: Use getTransactions() instead of getAllTransactions()
-      final transactionsData = await _dbHelper.getTransactions();
-      setState(() {
-        _transactions = transactionsData.map((data) => Transaction.fromMap(data)).toList();
-        _isLoading = false;
-      });
-    } catch (e) {
-      print('Error loading transactions: $e');
-      setState(() {
-        _isLoading = false;
-      });
+    final data = await DatabaseHelper().getTransactions();
+    setState(() {
+      _transactions = data;
+    });
+  }
+
+  // Delete a specific transaction
+  Future<void> _deleteTransaction(int id) async {
+    await DatabaseHelper().deleteTransaction(id);
+    _loadTransactions(); // refresh after deletion
+  }
+
+  // Clear all transactions with confirmation
+  Future<void> _clearAllTransactions() async {
+    final confirm = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        title: const Text('Delete All Transactions'),
+        content: const Text('Are you sure you want to clear ALL transactions?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Cancel'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            child: const Text('Delete All'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirm == true) {
+      await DatabaseHelper().clearAllTransactions();
+      _loadTransactions();
     }
   }
 
@@ -47,52 +65,46 @@ class _AllTransactionsScreenState extends State<AllTransactionsScreen> {
         title: const Text('All Transactions'),
         actions: [
           IconButton(
-            icon: const Icon(Icons.refresh),
-            onPressed: _loadTransactions,
+            icon: const Icon(Icons.delete_forever),
+            tooltip: 'Clear All',
+            onPressed: _clearAllTransactions,
           ),
         ],
       ),
-
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : _transactions.isEmpty
-              ? const Center(
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.receipt_long, size: 64, color: Colors.grey),
-                      SizedBox(height: 16),
-                      Text(
-                        'No transactions yet!',
-                        style: TextStyle(fontSize: 18, color: Colors.grey),
+      body: _transactions.isEmpty
+          ? const Center(child: Text('No transactions found.'))
+          : RefreshIndicator(
+              onRefresh: _loadTransactions,
+              child: ListView.builder(
+                itemCount: _transactions.length,
+                itemBuilder: (context, index) {
+                  final transaction = _transactions[index];
+                  return Dismissible(
+                    key: Key(transaction['id'].toString()),
+                    background: Container(
+                      color: Colors.red,
+                      alignment: Alignment.centerRight,
+                      padding: const EdgeInsets.symmetric(horizontal: 20),
+                      child: const Icon(Icons.delete, color: Colors.white),
+                    ),
+                    direction: DismissDirection.endToStart,
+                    onDismissed: (_) => _deleteTransaction(transaction['id']),
+                    child: Card(
+                      margin: const EdgeInsets.symmetric(
+                        horizontal: 10,
+                        vertical: 5,
                       ),
-                      Text(
-                        'Add your first transaction to get started.',
-                        style: TextStyle(fontSize: 14, color: Colors.grey),
-                      ),
-                    ],
-                  ),
-                )
-              : ListView.builder(
-                  itemCount: _transactions.length,
-                  itemBuilder: (context, index) {
-                    final transaction = _transactions[index];
-
-                    return Card(
-                      margin: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
                       child: TransactionTile(
-                        title: transaction.title,
-                        category: transaction.category,
-                        amount: transaction.amount,
-                        date: _formatDate(transaction.date),
+                        title: transaction['title'] ?? 'Untitled',
+                        category: transaction['category'] ?? 'Other',
+                        amount: transaction['amount'] ?? 0.0,
+                        date: transaction['date'] ?? '',
                       ),
-                    );
-                  },
-                ),
+                    ),
+                  );
+                },
+              ),
+            ),
     );
-  }
-
-  String _formatDate(DateTime date) {
-    return '${date.month}/${date.day}/${date.year}';
   }
 }

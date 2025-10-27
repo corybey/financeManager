@@ -65,11 +65,11 @@ class _LogIncomeScreenState extends State<LogIncomeScreen> {
       );
 
       await _dbHelper.insertIncome(income.toMap());
-      
+
       // Clear form
       _amountController.clear();
       _descriptionController.clear();
-      
+
       // Show success message
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
@@ -77,12 +77,11 @@ class _LogIncomeScreenState extends State<LogIncomeScreen> {
           backgroundColor: Colors.green,
         ),
       );
-      
+
       // Navigate back after a short delay
       Future.delayed(const Duration(milliseconds: 1500), () {
-        Navigator.pop(context);
+        if (mounted) Navigator.pop(context);
       });
-      
     } catch (e) {
       _showError('Failed to save income: $e');
     }
@@ -90,10 +89,7 @@ class _LogIncomeScreenState extends State<LogIncomeScreen> {
 
   void _showError(String message) {
     ScaffoldMessenger.of(context).showSnackBar(
-      SnackBar(
-        content: Text(message),
-        backgroundColor: Colors.red,
-      ),
+      SnackBar(content: Text(message), backgroundColor: Colors.red),
     );
   }
 
